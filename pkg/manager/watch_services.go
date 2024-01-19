@@ -101,6 +101,11 @@ func (sm *Manager) servicesWatcher(ctx context.Context, serviceFunc func(context
 				break
 			}
 
+			// Make sure that the service is not in the process of being deleted
+			if svc.DeletionTimestamp != nil {
+				break
+			}
+
 			// We only care about LoadBalancer services that have been allocated an address
 			if fetchServiceAddress(svc) == "" {
 				break
