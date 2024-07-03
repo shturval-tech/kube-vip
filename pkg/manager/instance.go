@@ -42,12 +42,17 @@ func NewInstance(svc *v1.Service, config *kubevip.Config) (*Instance, error) {
 	instanceAddress := fetchServiceAddress(svc)
 	instanceUID := string(svc.UID)
 
+	// first off all check annotation for specific interface for service
+	serviceInterface := fetchServiceInterface(svc)
 	// Detect if we're using a specific interface for services
-	var serviceInterface string
-	if config.ServicesInterface != "" {
-		serviceInterface = config.ServicesInterface
-	} else {
-		serviceInterface = config.Interface
+	if serviceInterface == "" {
+		// next check value of --servicesInterface flag
+		if config.ServicesInterface != "" {
+			serviceInterface = config.ServicesInterface
+		} else {
+			// finally set global default interface
+			serviceInterface = config.Interface
+		}
 	}
 
 	// Generate new Virtual IP configuration

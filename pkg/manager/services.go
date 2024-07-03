@@ -18,16 +18,17 @@ import (
 )
 
 const (
-	hwAddrKey                = "kube-vip.io/hwaddr"
-	requestedIP              = "kube-vip.io/requestedIP"
-	vipHost                  = "kube-vip.io/vipHost"
-	egress                   = "kube-vip.io/egress"
-	egressDestinationPorts   = "kube-vip.io/egress-destination-ports"
-	egressSourcePorts        = "kube-vip.io/egress-source-ports"
-	endpoint                 = "kube-vip.io/active-endpoint"
-	flushContrack            = "kube-vip.io/flush-conntrack"
-	loadbalancerIPAnnotation = "kube-vip.io/loadbalancerIPs"
-	loadbalancerHostname     = "kube-vip.io/loadbalancerHostname"
+	hwAddrKey                       = "kube-vip.io/hwaddr"
+	requestedIP                     = "kube-vip.io/requestedIP"
+	vipHost                         = "kube-vip.io/vipHost"
+	egress                          = "kube-vip.io/egress"
+	egressDestinationPorts          = "kube-vip.io/egress-destination-ports"
+	egressSourcePorts               = "kube-vip.io/egress-source-ports"
+	endpoint                        = "kube-vip.io/active-endpoint"
+	flushContrack                   = "kube-vip.io/flush-conntrack"
+	loadbalancerIPAnnotation        = "kube-vip.io/loadbalancerIPs"
+	loadbalancerHostname            = "kube-vip.io/loadbalancerHostname"
+	loadbalancerInterfaceAnnotation = "kube-vip.io/loadbalancerInterface"
 )
 
 func (sm *Manager) syncServices(_ context.Context, svc *v1.Service, wg *sync.WaitGroup) error {
@@ -318,4 +319,15 @@ func fetchServiceAddress(s *v1.Service) string {
 		}
 	}
 	return s.Spec.LoadBalancerIP
+}
+
+// fetchServiceInterface tries to get the address from annotations
+// kube-vip.io/loadbalancerInterface
+func fetchServiceInterface(s *v1.Service) string {
+	if s.Annotations != nil {
+		if v, ok := s.Annotations[loadbalancerInterfaceAnnotation]; ok {
+			return v
+		}
+	}
+	return ""
 }
